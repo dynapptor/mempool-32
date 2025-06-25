@@ -1,0 +1,50 @@
+= Mempool Arduino Library
+
+== Overview
+
+The `Mempool` library provides a dynamic memory pool for efficient memory management on Arduino platforms, particularly suited for resource-constrained devices like the ESP32. It allows allocation and deallocation of fixed-size memory segments, with support for multiple segment sizes and cell counts.
+
+== Features
+
+- Efficient memory allocation and deallocation using a pool of fixed-size segments.
+- Supports multiple segment sizes, sorted in strictly increasing order.
+- Optional debug mode (`MEMPOOL_DEBUG`) for allocation statistics.
+- Robust memory management with nullptr checks and cleanup.
+
+== Installation
+
+1. Download the library from the GitHub repository.
+2. Place the `Mempool` folder in your Arduino `libraries` directory.
+3. Include the library in your sketch with `#include <mempool.h>`.
+
+== Usage Example
+
+```cpp
+#include <mempool.h>
+
+void setup() {
+  Serial.begin(115200);
+  segment segs[] = { segment(10, 4), segment(5, 8) }; // 10x4 bytes, 5x8 bytes
+  mempool pool;
+  if (!pool.begin(segs, 2)) {
+    Serial.println("Initialization failed!");
+    return;
+  }
+  int* ptr = pool.alloc<int>(1);
+  if (ptr) {
+    *ptr = 42;
+    pool.release(ptr);
+  }
+  pool.print_stats();
+}
+
+void loop() {}
+```
+
+== Documentation
+
+Detailed API documentation is available in `API.md`. For keyword highlighting in the Arduino IDE, see `keywords.txt`.
+
+== License
+
+MIT License. See `LICENSE` for details.

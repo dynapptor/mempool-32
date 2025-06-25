@@ -1,0 +1,18 @@
+# Class names
+mempool	KEYWORD1
+segment	KEYWORD1
+
+# Member functions
+begin	KEYWORD2
+clean	KEYWORD2
+alloc	KEYWORD2
+release	KEYWORD2
+print_buffer	KEYWORD2
+print_pool	KEYWORD2
+print_segment_lookup	KEYWORD2
+print_stats	KEYWORD2
+
+# Constants
+SEGMENT_STEP	LITERAL1
+SEGMENT_LOG2	LITERAL1
+MEMPOOL_DEBUG	LITERAL1
