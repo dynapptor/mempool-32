@@ -24,7 +24,7 @@ The `Mempool` library provides a dynamic memory pool for efficient memory manage
 
 void setup() {
   Serial.begin(115200);
-  segment segs[] = { segment(10, 4), segment(5, 8) }; // 10x4 bytes, 5x8 bytes
+  segment segs[] = { segment(10, 1), segment(5, 2) }; // 10x4 bytes, 5x8 bytes
   mempool pool;
   if (!pool.begin(segs, 2)) {
     Serial.println("Initialization failed!");
