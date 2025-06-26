@@ -312,3 +312,6 @@ void mempool::release(uint8_t* ptr) {
   pp += poolIndex + 1;
   bitClear(*pp, bitIndex);
 }
+
+
+mempool mem;
