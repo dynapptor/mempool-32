@@ -326,4 +326,6 @@ void mempool::release(uint8_t* ptr) {
   xSemaphoreGive(_mutex);
 }
 
+uint16_t mempool::max_segment_size() { return _max_segment_size; }
+
 mempool mem;

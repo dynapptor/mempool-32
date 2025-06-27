@@ -105,6 +105,11 @@ class mempool {
   template <typename T>
   void release(T* ptr);
 
+  /**
+   * @brief Return the biggest sigment size.
+   */
+  uint16_t max_segment_size();
+
  private:
   bool _initialized = false;         ///< Flag indicating if the pool is initialized.
   uint8_t* _buffer = nullptr;        ///< Buffer for memory pool.
