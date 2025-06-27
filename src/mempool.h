@@ -1,8 +1,7 @@
 #pragma once
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 #include <stdint.h>
-
-#define SEGMENT_STEP 4  ///< Step size for segment allocation in bytes (must be a power of 2).
-#define SEGMENT_LOG2 2  ///< Log2 of segment step for size calculations (must satisfy SEGMENT_STEP == 1 << SEGMENT_LOG2).
 
 /**
  * @brief Structure to define a memory segment with count and size.
@@ -125,6 +124,7 @@ class mempool {
   int16_t* _segment_lookup = nullptr;  ///< Lookup table for segment selection.
   uint16_t _segment_lookup_count = 0;  ///< Number of entries in the segment lookup table.
 
+  SemaphoreHandle_t _mutex = nullptr;
   /**
    * @brief Finds the next segment with size greater than current.
    * @param arr Array of segments.

@@ -2,10 +2,18 @@
 
 #include <Arduino.h>
 
-mempool::mempool() {}
+#define SEGMENT_STEP 4  ///< Step size for segment allocation in bytes (must be a power of 2).
+#define SEGMENT_LOG2 2  ///< Log2 of segment step for size calculations (must satisfy SEGMENT_STEP == 1 << SEGMENT_LOG2).
+
+mempool::mempool() {
+  _mutex = xSemaphoreCreateMutex();
+}
 
 mempool::~mempool() {
   clean();
+  if (_mutex) {
+    vSemaphoreDelete(_mutex);
+  }
 }
 
 void mempool::clean() {
@@ -250,8 +258,10 @@ uint8_t* mempool::alloc(uint16_t size) {
       return nullptr;
     }
   }
+  if (xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE) return nullptr;
   uint8_t pool_index = __builtin_ctz(~_pool_ptr[sg][0]);
   if (pool_index >= (_cell_count[sg] + 31) / 32) {
+    xSemaphoreGive(_mutex);
 #ifdef MEMPOOL_DEBUG
     _failed_allocs++;
 #endif
@@ -264,6 +274,7 @@ uint8_t* mempool::alloc(uint16_t size) {
   if (*cell_mask == 0xFFFFFFFF) {
     bitSet(*_pool_ptr[sg], pool_index);
   }
+  xSemaphoreGive(_mutex);
 #ifdef MEMPOOL_DEBUG
   _total_allocs++;
   _allocs_per_segment[sg]++;
@@ -308,10 +319,11 @@ void mempool::release(uint8_t* ptr) {
   uint8_t bitIndex = cellIndex & 31;
 
   uint32_t* pp = _pool_ptr[sg];
+  if (xSemaphoreTake(_mutex, portMAX_DELAY) != pdTRUE) return;
   bitClear(*pp, poolIndex);
   pp += poolIndex + 1;
   bitClear(*pp, bitIndex);
+  xSemaphoreGive(_mutex);
 }
-
 
 mempool mem;
