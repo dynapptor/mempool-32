@@ -26,7 +26,7 @@ void mempool::clean() {
   if (_segment_lookup) delete[] _segment_lookup;
   if (_segment_ptr) delete[] _segment_ptr;
   if (_pool_ptr) delete[] _pool_ptr;
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
   if (_max_cells_used) delete[] _max_cells_used;
   if (_allocs_per_segment) delete[] _allocs_per_segment;
 #endif
@@ -67,7 +67,7 @@ bool mempool::begin(segment* segs, uint8_t count) {
     clean();
     return false;
   }
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
   _max_cells_used = new uint16_t[count]{};
   if (!_max_cells_used) {
     clean();
@@ -213,7 +213,7 @@ void mempool::print_segment_lookup(uint8_t f) {
 
 void mempool::print_stats() {
   if (!Serial) return;
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
   Serial.print("Total allocs: ");
   Serial.println(_total_allocs);
   Serial.print("Failed allocs: ");
@@ -227,20 +227,20 @@ void mempool::print_stats() {
     Serial.println(_allocs_per_segment[i]);
   }
 #else
-  Serial.println("Debug stats not available. Enable MEMPOOL_DEBUG to see statistics.");
+  Serial.println("Debug stats not available. Enable MEMPOOL_STATISTIC to see statistics.");
 #endif
 }
 
 uint8_t* mempool::alloc(uint16_t size) {
   if (size > _max_segment_size) {
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
     _failed_allocs++;
 #endif
     return nullptr;
   }
   uint8_t sg = _segment_lookup[((size + SEGMENT_STEP - 1) >> SEGMENT_LOG2) - 1];
   if (sg >= _segment_count) {
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
     _failed_allocs++;
 #endif
     return nullptr;
@@ -252,7 +252,7 @@ uint8_t* mempool::alloc(uint16_t size) {
     if (sg < _segment_count - 1) {
       return alloc(_segment_sizes[sg + 1]);
     } else {
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
       _failed_allocs++;
 #endif
       return nullptr;
@@ -262,7 +262,7 @@ uint8_t* mempool::alloc(uint16_t size) {
   uint8_t pool_index = __builtin_ctz(~_pool_ptr[sg][0]);
   if (pool_index >= (_cell_count[sg] + 31) / 32) {
     xSemaphoreGive(_mutex);
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
     _failed_allocs++;
 #endif
     return nullptr;
@@ -275,7 +275,7 @@ uint8_t* mempool::alloc(uint16_t size) {
     bitSet(*_pool_ptr[sg], pool_index);
   }
   xSemaphoreGive(_mutex);
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
   _total_allocs++;
   _allocs_per_segment[sg]++;
   uint16_t used_cells = pool_index * 32 + cell_index;

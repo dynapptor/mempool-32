@@ -68,7 +68,7 @@ class mempool {
 
   /**
    * @brief Prints memory pool statistics to Serial.
-   * @details Requires MEMPOOL_DEBUG to be defined to print detailed statistics.
+   * @details Requires MEMPOOL_STATISTIC to be defined to print detailed statistics.
    */
   void print_stats();
 
@@ -153,7 +153,7 @@ class mempool {
    */
   uint32_t _prepare_mask(uint8_t c);
 
-#ifdef MEMPOOL_DEBUG
+#ifdef MEMPOOL_STATISTIC
   uint16_t* _max_cells_used = nullptr;      ///< Maximum cells used per segment (debug only).
   uint32_t _total_allocs = 0;               ///< Total number of allocations (debug only).
   uint32_t _failed_allocs = 0;              ///< Number of failed allocations (debug only).
